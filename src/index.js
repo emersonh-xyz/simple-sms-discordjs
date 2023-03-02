@@ -18,7 +18,7 @@ client.on('ready', async (c) => {
     try {
         await mongo.connect();
         console.log(`✅ Connected to Database`)
-        client.user.setActivity('/verify', { type: ActivityType.Watching })
+        client.user.setActivity('>> /verify <<', { type: ActivityType.Watching })
 
     } catch (err) {
         console.log(`Error connecting to Database ${err}`)
@@ -49,7 +49,6 @@ client.on('interactionCreate', async (interaction) => {
     // Member instance
     const member = interaction.member
 
-
     // Verify command
     if (interaction.commandName === 'verify') {
 
@@ -57,12 +56,12 @@ client.on('interactionCreate', async (interaction) => {
         let param = interaction.options.get('order-id')
 
         // Check for match in collections
-        let firstResult = await completedOrders.findOne({ orderId: param.value })
-        let secondResult = await activeOrders.findOne({ orderId: param.value })
-        let thirdResult = await cancelledOrders.findOne({ orderId: param.value })
+        let isCompletedOrder = await completedOrders.findOne({ orderId: param.value })
+        let isActiveOrder = await activeOrders.findOne({ orderId: param.value })
+        let isCancelledOrder = await cancelledOrders.findOne({ orderId: param.value })
 
         // Update roles of user
-        if (firstResult || secondResult || thirdResult) {
+        if (isCompletedOrder || isActiveOrder || isCancelledOrder) {
             await interaction.reply({
                 content: `Your account has been linked and verified!`,
                 ephemeral: true
@@ -71,7 +70,7 @@ client.on('interactionCreate', async (interaction) => {
             return;
         } else {
             await interaction.reply({
-                content: `We could not locate an order with this id, please open a ticket for more assistance.`,
+                content: `We could not locate an order with this id, please open a ticket in #support for more assistance.`,
                 ephemeral: true
             })
         }
